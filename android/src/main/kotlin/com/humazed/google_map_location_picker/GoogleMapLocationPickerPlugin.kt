@@ -1,30 +1,30 @@
 package com.humazed.google_map_location_picker
 
-import android.app.Activity
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
-import androidx.annotation.UiThread
 import androidx.annotation.NonNull
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import java.math.BigInteger
-import java.security.MessageDigest
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import io.flutter.plugin.common.MethodChannel.Result
 
-class GoogleMapLocationPickerPlugin : FlutterActivity()  {
-    private val CHANNEL = "google_map_location_picker"
+class GoogleMapLocationPickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware  {
+    private lateinit var channel : MethodChannel
+    private var activityBinding: ActivityPluginBinding? = null
 
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
-            onMethodCall
-        }
+    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "google_map_location_picker")
+        channel.setMethodCallHandler(this)
     }
 
-    onMethodCall(call: MethodCall, result: Result) {
+    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+        if(activityBinding == null) {
+            result.notImplemented()
+            return
+        }
         if (call.method == "getSigningCertSha1") {
             try {
-                val info: PackageInfo = activity.packageManager.getPackageInfo(call.arguments<String>(), PackageManager.GET_SIGNATURES)
+                val info: PackageInfo = activityBinding.activity.packageManager.getPackageInfo(call.arguments<String>(), PackageManager.GET_SIGNATURES)
                 for (signature in info.signatures) {
                     val md: MessageDigest = MessageDigest.getInstance("SHA1")
                     md.update(signature.toByteArray())
@@ -41,5 +41,23 @@ class GoogleMapLocationPickerPlugin : FlutterActivity()  {
         } else {
             result.notImplemented()
         }
+    }
+
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activityBinding = binding
+    }
+
+    override fun onDetachedFromActivity() {
+        activityBinding = null
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     }
 }
