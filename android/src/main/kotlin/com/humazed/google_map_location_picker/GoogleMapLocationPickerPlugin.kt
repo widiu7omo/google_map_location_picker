@@ -4,31 +4,24 @@ import android.app.Activity
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import androidx.annotation.UiThread
-import io.flutter.plugin.common.MethodCall
+import androidx.annotation.NonNull
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.math.BigInteger
 import java.security.MessageDigest
 
+class GoogleMapLocationPickerPlugin : FlutterActivity()  {
+    private val CHANNEL = "google_map_location_picker"
 
-class GoogleMapLocationPickerPlugin(act: Activity) : MethodCallHandler {
-    var activity: Activity = act
-
-    companion object {
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "google_map_location_picker")
-            channel.setMethodCallHandler(GoogleMapLocationPickerPlugin(registrar.activity()))
+    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
+            onMethodCall
         }
     }
 
-    @UiThread
-    override fun onMethodCall(call: MethodCall, result: Result) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        }
+    onMethodCall(call: MethodCall, result: Result) {
         if (call.method == "getSigningCertSha1") {
             try {
                 val info: PackageInfo = activity.packageManager.getPackageInfo(call.arguments<String>(), PackageManager.GET_SIGNATURES)
