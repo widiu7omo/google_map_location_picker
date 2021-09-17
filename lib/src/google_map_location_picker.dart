@@ -151,7 +151,7 @@ class LocationPickerState extends State<LocationPicker> {
   }
 
   /// Fetches the place autocomplete list with the query [place].
-  void autoCompleteSearch(String place) {
+  void autoCompleteSearch(String place) async {
     place = place.replaceAll(" ", "+");
 
     final countries = widget.countries;
@@ -172,43 +172,39 @@ class LocationPickerState extends State<LocationPicker> {
           "${locationResult!.latLng!.longitude}";
     }
 
-    LocationUtils.getAppHeaders()
-        .then((headers) => http.get(Uri.parse(endpoint),
-            headers: headers as Map<String, String>?))
-        .then((response) {
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        List<dynamic> predictions = data['predictions'];
+    final headers = await LocationUtils.getAppHeaders();
+    final response = await http.get(Uri.parse(endpoint), headers: headers);
 
-        List<RichSuggestion> suggestions = [];
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      List<dynamic> predictions = data['predictions'];
 
-        if (predictions.isEmpty) {
+      List<RichSuggestion> suggestions = [];
+
+      if (predictions.isEmpty) {
+        AutoCompleteItem aci = AutoCompleteItem();
+        aci.text = S.of(context).no_result_found;
+        aci.offset = 0;
+        aci.length = 0;
+
+        suggestions.add(RichSuggestion(aci, () {}));
+      } else {
+        for (dynamic t in predictions) {
           AutoCompleteItem aci = AutoCompleteItem();
-          aci.text = S.of(context).no_result_found;
-          aci.offset = 0;
-          aci.length = 0;
 
-          suggestions.add(RichSuggestion(aci, () {}));
-        } else {
-          for (dynamic t in predictions) {
-            AutoCompleteItem aci = AutoCompleteItem();
+          aci.id = t['place_id'];
+          aci.text = t['description'];
+          aci.offset = t['matched_substrings'][0]['offset'];
+          aci.length = t['matched_substrings'][0]['length'];
 
-            aci.id = t['place_id'];
-            aci.text = t['description'];
-            aci.offset = t['matched_substrings'][0]['offset'];
-            aci.length = t['matched_substrings'][0]['length'];
-
-            suggestions.add(RichSuggestion(aci, () {
-              decodeAndSelectPlace(aci.id);
-            }));
-          }
+          suggestions.add(RichSuggestion(aci, () {
+            decodeAndSelectPlace(aci.id);
+          }));
         }
-
-        displayAutoCompleteSuggestions(suggestions);
       }
-    }).catchError((error) {
-      print(error);
-    });
+
+      displayAutoCompleteSuggestions(suggestions);
+    }
   }
 
   /// To navigate to the selected place from the autocomplete list to the map,
@@ -223,8 +219,7 @@ class LocationPickerState extends State<LocationPicker> {
             '&language=${widget.language}';
 
     LocationUtils.getAppHeaders()
-        .then((headers) => http.get(Uri.parse(endpoint),
-            headers: headers as Map<String, String>?))
+        .then((headers) => http.get(Uri.parse(endpoint), headers: headers))
         .then((response) {
       if (response.statusCode == 200) {
         Map<String, dynamic> location =
@@ -294,8 +289,7 @@ class LocationPickerState extends State<LocationPicker> {
               "location=${latLng.latitude},${latLng.longitude}&radius=150" +
               "&language=${widget.language}";
 
-      return http.get(Uri.parse(endpoint),
-          headers: headers as Map<String, String>?);
+      return http.get(Uri.parse(endpoint), headers: headers);
     }).then((response) {
       if (response.statusCode == 200) {
         nearbyPlaces.clear();
@@ -333,8 +327,7 @@ class LocationPickerState extends State<LocationPicker> {
             "&language=${widget.language}";
 
     final response = await http.get(Uri.parse(endpoint),
-        headers: await (LocationUtils.getAppHeaders()
-            as FutureOr<Map<String, String>?>));
+        headers: await (LocationUtils.getAppHeaders()));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseJson = jsonDecode(response.body);

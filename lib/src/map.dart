@@ -225,7 +225,7 @@ class MapPickerState extends State<MapPicker> {
                 children: <Widget>[
                   Flexible(
                     flex: 20,
-                    child: FutureLoadingBuilder<Map<String, String?>>(
+                    child: FutureLoadingBuilder<Map<String, String?>?>(
                       future: getAddress(locationProvider.lastIdleLocation),
                       mutable: true,
                       loadingIndicator: Row(
@@ -235,6 +235,9 @@ class MapPickerState extends State<MapPicker> {
                         ],
                       ),
                       builder: (context, data) {
+                        if (data == null) {
+                          return const SizedBox();
+                        }
                         _address = data["address"];
                         _placeId = data["placeId"];
                         return Text(
@@ -274,8 +277,7 @@ class MapPickerState extends State<MapPicker> {
           '&key=${widget.apiKey}&language=${widget.language}';
 
       final response = jsonDecode((await http.get(Uri.parse(endpoint),
-              headers: await (LocationUtils.getAppHeaders()
-                  as FutureOr<Map<String, String>?>)))
+              headers: await LocationUtils.getAppHeaders()))
           .body);
 
       return {
