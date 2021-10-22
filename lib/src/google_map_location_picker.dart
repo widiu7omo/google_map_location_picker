@@ -20,30 +20,31 @@ import 'model/nearby_place.dart';
 import 'utils/location_utils.dart';
 
 class LocationPicker extends StatefulWidget {
-  LocationPicker(
-    this.apiKey, {
-    Key? key,
-    this.initialCenter,
-    this.initialZoom,
-    this.requiredGPS,
-    this.myLocationButtonEnabled,
-    this.layersButtonEnabled,
-    this.automaticallyAnimateToCurrentLocation,
-    this.mapStylePath,
-    this.appBarColor,
-    this.searchBarBoxDecoration,
-    this.hintText,
-    this.resultCardConfirmIcon,
-    this.resultCardAlignment,
-    this.resultCardDecoration,
-    this.resultCardPadding,
-    this.countries,
-    this.language,
-    this.desiredAccuracy,
-  });
+  LocationPicker(this.apiKey,
+      {Key? key,
+      this.initialCenter,
+      this.initialZoom,
+      this.requiredGPS,
+      this.myLocationButtonEnabled,
+      this.layersButtonEnabled,
+      this.automaticallyAnimateToCurrentLocation,
+      this.mapStylePath,
+      this.appBarColor,
+      this.searchBarBoxDecoration,
+      this.hintText,
+      this.resultCardConfirmIcon,
+      this.resultCardAlignment,
+      this.resultCardDecoration,
+      this.resultCardPadding,
+      this.countries,
+      this.language,
+      this.desiredAccuracy,
+      this.noResultFoundText,
+      this.findingPlaceText});
 
   final String apiKey;
-
+  final String? noResultFoundText;
+  final String? findingPlaceText;
   final LatLng? initialCenter;
   final double? initialZoom;
   final List<String>? countries;
@@ -134,7 +135,7 @@ class LocationPickerState extends State<LocationPicker> {
                 SizedBox(width: 24),
                 Expanded(
                   child: Text(
-                    S.of(context).finding_place,
+                    widget.findingPlaceText ?? S.of(context).finding_place,
                     style: TextStyle(fontSize: 16),
                   ),
                 )
@@ -183,7 +184,7 @@ class LocationPickerState extends State<LocationPicker> {
 
       if (predictions.isEmpty) {
         AutoCompleteItem aci = AutoCompleteItem();
-        aci.text = S.of(context).no_result_found;
+        aci.text = widget.noResultFoundText ?? S.of(context).no_result_found;
         aci.offset = 0;
         aci.length = 0;
 
@@ -453,6 +454,8 @@ Future<LocationResult?> showLocationPicker(
   Color appBarColor = Colors.transparent,
   BoxDecoration? searchBarBoxDecoration,
   String? hintText,
+  String? noResultFoundText,
+  String? findingPlaceText,
   Widget? resultCardConfirmIcon,
   AlignmentGeometry? resultCardAlignment,
   EdgeInsetsGeometry? resultCardPadding,
