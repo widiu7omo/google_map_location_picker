@@ -479,6 +479,8 @@ Future<LocationResult?> showLocationPicker(
           mapStylePath: mapStylePath,
           appBarColor: appBarColor,
           hintText: hintText,
+          noResultFoundText: noResultFoundText,
+          findingPlaceText: findingPlaceText,
           searchBarBoxDecoration: searchBarBoxDecoration,
           resultCardConfirmIcon: resultCardConfirmIcon,
           resultCardAlignment: resultCardAlignment as Alignment?,
