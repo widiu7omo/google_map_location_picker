@@ -1,0 +1,16 @@
+{
+  "@@locale": "id",
+  "please_check_your_connection": "Periksa kembali jaringan internetmu",
+  "server_error": "Gagal terkoneksi dengan server",
+  "access_to_location_denied": "Akses lokasi ditolak",
+  "allow_access_to_the_location_services": "Ijinkan untuk mengakses layanan lokasi.",
+  "access_to_location_permanently_denied": "Akses lokasi ditolak permanen",
+  "allow_access_to_the_location_services_from_settings": "Ijinkan untuk mengakses layanan lokasi dari pengaturan perangkat",
+  "ok": "Ok",
+  "cant_get_current_location": "Tidak dapat menemukan lokasi",
+  "please_make_sure_you_enable_gps_and_try_again": "Pastikan anda mengaktifkan GPS dan coba lagi",
+  "search_place": "Cari tempat",
+  "finding_place": "Sedang mencari lokasi...",
+  "no_result_found": "Tidak ditemukan",
+  "unnamedPlace": "Tempat tidak bernama"
+}
